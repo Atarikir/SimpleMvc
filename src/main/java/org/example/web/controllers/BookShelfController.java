@@ -18,6 +18,7 @@ import java.util.List;
 public class BookShelfController {
     private final Logger logger = Logger.getLogger(BookShelfController.class);
     private final BookService bookService;
+    private static final String REDIRECT_BOOKS_SHELF = "redirect:/books/shelf";
 
     @Autowired
     public BookShelfController(BookService bookService) {
@@ -36,16 +37,26 @@ public class BookShelfController {
     public String saveBook(Book book) {
         bookService.saveBook(book);
         logger.info("current repository size: " + bookService.getAllBooks().size());
-        return "redirect:/books/shelf";
+        return REDIRECT_BOOKS_SHELF;
     }
 
     @PostMapping("/remove")
     public String removeBook(@RequestParam(value = "bookIdToRemove") Integer bookIdToRemove) {
 
         if (bookService.removeBookById(bookIdToRemove)) {
-            return "redirect:/books/shelf";
+            return REDIRECT_BOOKS_SHELF;
         } else {
-            return "redirect:/books/shelf";
+            return REDIRECT_BOOKS_SHELF;
+        }
+    }
+
+    @PostMapping("/removeByRegex")
+    public String removeByRegex(@RequestParam(value = "queryRegex") String queryRegex) {
+
+        if (bookService.removeBookByQueryRegex(queryRegex)) {
+            return REDIRECT_BOOKS_SHELF;
+        } else {
+            return REDIRECT_BOOKS_SHELF;
         }
     }
 }
