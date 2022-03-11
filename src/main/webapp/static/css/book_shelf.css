@@ -1,0 +1,23 @@
+#root_container {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#books {
+    width: 50%;
+    border-collapse: collapse;
+}
+
+table {
+    margin: 25px;
+}
+
+th {
+    text-align: left;
+}
+
+th, td {
+    border-bottom: 1px solid #ddd;
+}

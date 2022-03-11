@@ -19,11 +19,9 @@ public class BookRepository<T> implements ProjectRepository<Book> {
 
     @Override
     public void store(Book book) {
-        if (!book.getAuthor().isEmpty() || !book.getTitle().isEmpty() || book.getSize() != null) {
-            book.setId(book.hashCode());
-            logger.info("store new book: " + book);
-            repo.add(book);
-        }
+        book.setId(book.hashCode());
+        logger.info("store new book: " + book);
+        repo.add(book);
     }
 
     @Override
@@ -43,9 +41,18 @@ public class BookRepository<T> implements ProjectRepository<Book> {
         logger.info("query: " + queryRegex);
         List<Book> tempList = new ArrayList();
 
+
         for (Book book : retreiveAll()) {
-            if (book.getAuthor().equals(queryRegex) || book.getTitle().equals(queryRegex) ||
-                    book.getSize().toString().equals(queryRegex)) {
+            String bookSize;
+
+            if (book.getSize() == null) {
+                bookSize = "";
+            } else {
+                bookSize = String.valueOf(book.getSize());
+            }
+
+            if (queryRegex.equalsIgnoreCase(book.getAuthor()) || queryRegex.equalsIgnoreCase(book.getTitle()) ||
+                    queryRegex.equalsIgnoreCase(bookSize)) {
                 tempList.add(book);
                 logger.info("added the book to the temporary list: " + book);
             }

@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping(value = "/books")
@@ -34,29 +33,47 @@ public class BookShelfController {
     }
 
     @PostMapping("/save")
-    public String saveBook(Book book) {
-        bookService.saveBook(book);
-        logger.info("current repository size: " + bookService.getAllBooks().size());
+    public String saveBook(RedirectAttributes redirectAttributes, Book book) {
+        if (!book.getAuthor().isEmpty() || !book.getTitle().isEmpty() || book.getSize() != null) {
+            bookService.saveBook(book);
+            logger.info("current repository size: " + bookService.getAllBooks().size());
+            return REDIRECT_BOOKS_SHELF;
+        } else if (book.getAuthor().isEmpty() && book.getTitle().isEmpty() && book.getSize() == null) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Author and Title and Size cannot be empty");
+        }
+
         return REDIRECT_BOOKS_SHELF;
     }
 
     @PostMapping("/remove")
-    public String removeBook(@RequestParam(value = "bookIdToRemove") Integer bookIdToRemove) {
-
-        if (bookService.removeBookById(bookIdToRemove)) {
-            return REDIRECT_BOOKS_SHELF;
-        } else {
-            return REDIRECT_BOOKS_SHELF;
+    public String removeBook(RedirectAttributes redirectAttributes,
+                             @RequestParam(value = "bookIdToRemove") String bookIdToRemove) {
+        try {
+            Integer bookId = Integer.parseInt(bookIdToRemove);
+            if (bookService.removeBookById(bookId)) {
+                return REDIRECT_BOOKS_SHELF;
+            } else {
+                redirectAttributes.addFlashAttribute("errorNotFound", "id not found");
+            }
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorRemove", "Id is empty or wrong");
         }
+
+        return REDIRECT_BOOKS_SHELF;
     }
 
     @PostMapping("/removeByRegex")
-    public String removeByRegex(@RequestParam(value = "queryRegex") String queryRegex) {
+    public String removeByRegex(RedirectAttributes redirectAttributes,
+                                @RequestParam(value = "queryRegex") String queryRegex) {
 
         if (bookService.removeBookByQueryRegex(queryRegex)) {
             return REDIRECT_BOOKS_SHELF;
         } else {
-            return REDIRECT_BOOKS_SHELF;
+            redirectAttributes.addFlashAttribute("errorRemoveRegex",
+                    "There are no books matching this search. Enter another query");
         }
+
+        return REDIRECT_BOOKS_SHELF;
     }
 }
