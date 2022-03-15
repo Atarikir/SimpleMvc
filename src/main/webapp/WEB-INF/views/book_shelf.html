@@ -3,32 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>My book shelf</title>
-<!--    <link rel="stylesheet" type="text/css" href="/static/css/book_shelf.css">-->
-    <style>
-        #root_container {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        #books {
-            width: 50%;
-            border-collapse: collapse;
-        }
-
-        table {
-            margin: 25px;
-        }
-
-        th {
-            text-align: left;
-        }
-
-        th, td {
-            border-bottom: 1px solid #ddd;
-        }
-    </style>
+    <link rel="stylesheet" media="screen" th:href="@{/css/book_shelf.css}"/>
 </head>
 <body>
 <div id="root_container">
@@ -43,6 +18,7 @@
                 </td>
                 <td>
                     <input type="text" placeholder="size (pages)" th:field="*{size}">
+                    <p th:if="${#fields.hasErrors()}">field value must be digit and less than 4 signs</p>
                 </td>
                 <td>
                     <input type="submit" value="save">
@@ -52,17 +28,19 @@
         </table>
     </form>
 
-    <form th:method="post" th:action="@{/books/remove}">
+    <form th:method="post" th:action="@{/books/remove}" th:object="${bookIdToRemove}">
         <table>
             <tr>
                 <td>
-                    <input type="text" placeholder="id_number" th:name="bookIdToRemove">
+                    <input type="text" placeholder="id_number" th:field="*{id}">
                 </td>
                 <td>
                     <input type="submit" value="remove">
                 </td>
+                <td th:if="${#fields.hasErrors()}">
+                    <p>Wrong id or not found</p>
+                </td>
                 <p th:text="${errorNotFound}"></p>
-                <p th:text="${errorRemove}"></p>
             </tr>
         </table>
     </form>

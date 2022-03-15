@@ -17,8 +17,8 @@ public class WebContextConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/css/**, /images/**")
-                .addResourceLocations("/static/css/, /static/images/");
+        registry.addResourceHandler("/css/**", "/images/**")
+                .addResourceLocations("/static/css/", "/static/images/");
     }
 
     @Bean
@@ -47,4 +47,4 @@ public class WebContextConfig implements WebMvcConfigurer {
 
         return viewResolver;
     }
- }
+}
