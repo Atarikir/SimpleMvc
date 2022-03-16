@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/login")
@@ -25,7 +26,7 @@ public class LoginController {
     }
 
     @GetMapping
-    public String login(Model model){
+    public String login(Model model) {
         logger.info("GET /login returns login_page.html");
         model.addAttribute("loginForm", new LoginForm());
         return "login_page";
@@ -40,6 +41,7 @@ public class LoginController {
             throw new BookShelfLoginException("invalid username or password");
         }
     }
+
     @ExceptionHandler(BookShelfLoginException.class)
     public String handleError(Model model, BookShelfLoginException e) {
         model.addAttribute("errorMessage", e.getMessage());

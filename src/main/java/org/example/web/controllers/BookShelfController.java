@@ -13,9 +13,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 @Controller
 @RequestMapping(value = "/books")
@@ -49,11 +54,11 @@ public class BookShelfController {
             return "book_shelf";
         }
 
-        if (!book.getAuthor().isEmpty() || !book.getTitle().isEmpty() || book.getSize() != null) {
+        if (!book.getAuthor().isEmpty() || !book.getTitle().isEmpty() || book.getSize() != 0) {
             bookService.saveBook(book);
             logger.info("current repository size: " + bookService.getAllBooks().size());
             return REDIRECT_BOOKS_SHELF;
-        } else if (book.getAuthor().isEmpty() && book.getTitle().isEmpty() && book.getSize() == null) {
+        } else if (book.getAuthor().isEmpty() && book.getTitle().isEmpty() && book.getSize() == 0) {
             redirectAttributes.addFlashAttribute("error",
                     "Author and Title and Size cannot be empty");
         }
@@ -78,14 +83,43 @@ public class BookShelfController {
     }
 
     @PostMapping("/removeByRegex")
-    public String removeByRegex(RedirectAttributes redirectAttributes,
-                                @RequestParam(value = "queryRegex") String queryRegex) {
+    public String removeByRegex(@RequestParam(value = "queryRegex") String queryRegex,
+                                RedirectAttributes redirectAttributes) {
 
         if (bookService.removeBookByQueryRegex(queryRegex)) {
             return REDIRECT_BOOKS_SHELF;
         } else {
             redirectAttributes.addFlashAttribute("errorRemoveRegex",
                     "There are no books matching this search. Enter another query");
+        }
+
+        return REDIRECT_BOOKS_SHELF;
+    }
+
+    @PostMapping("/uploadFile")
+    public String uploadFile(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+
+        try {
+            String name = file.getOriginalFilename();
+            byte[] bytes = new byte[0];
+            bytes = file.getBytes();
+
+            //create dir
+            String rootPath = System.getProperty("catalina.home");
+            File dir = new File(rootPath + File.separator + "external_uploads");
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            //create file
+            File serverFile = new File(dir.getAbsolutePath() + File.separator + name);
+            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+            stream.write(bytes);
+            stream.close();
+
+            logger.info("new file saved at: " + serverFile.getAbsolutePath());
+        } catch (IOException e) {
+            redirectAttributes.addFlashAttribute("errorUploadFile", "Select file!");
         }
 
         return REDIRECT_BOOKS_SHELF;
